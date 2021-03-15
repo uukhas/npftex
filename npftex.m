@@ -181,7 +181,7 @@ matchRules[basis:{Rule[_, _]..}] :=
 Module[{res},
    res = Extract[$NPF, Position[$NPF, #[[2]]] /. {e__, 2} :> {e, 1}];
    If[res =!= {},
-      NPointFunctions`internal`mat@res[[1]] -> #[[1]],
+      NPointFunctions`Mat@res[[1]] -> #[[1]],
       ##&[]]] &/@ basis;
 matchRules // secure;
 
@@ -259,10 +259,11 @@ Module[{all, res},
       texify[Graphics, num] <>
       "\\end{minipage}\n\\hfill\n" <>
       "\\begin{minipage}[c]{0.79\\textwidth}\n" <>
-      (Table /. all) <>
+      (Table /. all) <> "\n\n" <>
+      (Integrate /. all) <> "\n" <>
       "\\end{minipage}\n" <>
       (Sum /. all) <> "\n" <>
-      (Integrate /. all) <> "\n\n" <>
+      "\\par\\noindent\\rule{\\textwidth}{0.4pt}" <> "\n" <>
       StringJoin@Riffle[Replace /. all, "\n\n"]];
 texify // secure;
 
