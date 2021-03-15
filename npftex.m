@@ -16,7 +16,8 @@ $NPF = {};
 Protect[$Diagrams, $Model, $Particles, $NPF];
 
 $texRules =
-{  SARAH`Delta[a_, b_] :> "\\delta_{"<>index@a<>index@b<>"}",
+{  KroneckerDelta[a_, b_] :> "\\delta_{"<>index@a<>index@b<>"}",
+   SARAH`Delta[a_, b_] :> "\\delta_{"<>index@a<>index@b<>"}",
    SARAH`Mass[e_] :> "m_{"<>eField@gField[e]<>"}",
    Power[s_String, i_Integer /; i>0] :> s<>"^{"<>ToString@i<>"}",
    Power[e_, -1] :> String["\\frac{1}{", e, "}"],
