@@ -1,7 +1,7 @@
 (* Author: Uladzimir Khasianevich *)
 
 BeginPackage@"npftex`";
-initialize; texify; processRules; matchRules; addRule; real; length;
+initialize; texify; processRules; matchRules; addRule; real; length; vertex;
 
 $stringLength = 100;
 $Factor = 16*Pi^2;
@@ -315,6 +315,7 @@ Module[{v},
       {eField /@ #[[1]], #[[3, 1]]} &@ SARAH`Vertex[{fields}];
    v[t : 1 | SARAH`PL | _Plus, fields__] :=  v[t, fields] =
       {eField /@ #[[1]], #[[2, 1]]} &@ SARAH`Vertex[{fields}];
+   vertex[SARAH`Cp[f__][t_]] := v[t, f][[2]];
    rCoupl[coupl_, fields : {__}, repl : {{__} ..}] :=
       rCoupl[coupl, MapThread[Rule, {fields, #}]] & /@ repl;
    rCoupl[coupl_, rules_] :=
@@ -355,7 +356,7 @@ Module[{count = 0, level = 0, depth = 0, bracket = {"\\Big", "\\big"}},
 divideString // secure;
 
 raw[basis_, i_] :=
-Module[{sum, int, coupl, mass, fields, subst},
+Module[{sum, int, coupl, mass, fields, subst, temp = {}, rule},
    sum = clean@$NPF[[2, 1, 1, i, 1, 1]];
    fields = First /@ $NPF[[2, 1, 1, i, 2]];
    int = DeleteDuplicates@Cases[sum,
@@ -364,10 +365,16 @@ Module[{sum, int, coupl, mass, fields, subst},
    subst = $NPF[[2, 1, 2, i]];
    mass = DeleteDuplicates@Cases[sum,
       HoldPattern@SARAH`Mass[_], Infinity, Heads -> True];
+   Do[rule = MapThread[Rule, {fields, subst[[el]]}];
+      If[(sum /. rule /. v : SARAH`Cp[__][_] :> vertex@v) =!= 0,
+         AppendTo[temp, subst[[el]]];];,
+      {el, Length@subst}];
+   If[temp === {},
+      Return[{Sum -> "", Integrate -> "", Replace -> {""}, Table -> ""}]];
    {  Sum -> texify@texSum[sum, int, coupl, basis],
       Integrate -> texify@texIntegrate@int,
-      Replace -> rCoupl[coupl, fields, subst],
-      Table -> gTable[fields, subst]}];
+      Replace -> rCoupl[coupl, fields, temp],
+      Table -> gTable[fields, temp]}];
 raw // secure;
 
 End[];
