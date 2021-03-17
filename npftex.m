@@ -262,7 +262,7 @@ texify[e:{__}] :=
    "\\begin{equation}\n" <>
    "\\begin{aligned}\n" <>
    StringReplace[
-      StringJoin[StringJoin /@ Riffle[e, ",\\\\\n"]] <> ".\n",
+      StringJoin[StringJoin /@ Riffle[e, "\n,\\\\\n"]] <> ".\n",
       "+-" -> "-"] <>
    "\\end{aligned}\n" <>
    "\\end{equation}";
@@ -343,7 +343,7 @@ Module[{v},
       res = res /. s_Symbol :> parseSymbol@s;
       res = res /. Susyno`LieGroups`conj[e_String] :> e <> "^*";
       res = MapThread[
-         divideString@StringJoin[#1, "&\\to ", "g_{[", StringJoin@#2, "]}=",
+         divideString@StringJoin[#1, "&\\to\n", "g_{[", StringJoin@#2, "]}=",
             Sequence@tostr@#3]&, {gen, res[[All, 1]], res[[All, 2]]}];
       texify@StringReplace[res, "+-" -> "-"]<>"\n"<>
       "\\par\\noindent\\rule{\\textwidth}{0.4pt}"];
