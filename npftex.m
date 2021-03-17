@@ -1,7 +1,8 @@
 (* Author: Uladzimir Khasianevich *)
 
 BeginPackage@"npftex`";
-initialize; texify; processRules; matchRules; addRule; real; length; vertex;
+initialize; texify; processRules; matchRules; addRule; real; length;
+abbreviations;
 
 $stringLength = 100;
 $Factor = 16*Pi^2;
@@ -151,23 +152,35 @@ Module[{table},
    "\\end{array}\\end{equation}"];
 gTable // secure;
 
-Module[{cache, type, i=0},
-   index[Plus[i_Integer, s_Symbol]] := index@i <>"+"<>index@s;
-   index[i_Integer] := ToString@i;
+$Indices = {};
+$Indices // Protect;
+
+abbreviations[] := StringJoin[
+   "\\newcommand{"<>#1<>"}{"<>#2<>"}\n" &@@#&/@ $Indices];
+abbreviations // secure;
+
+Module[{cache, colI=0, num, col, color, abbr},
+   color = {"red", "green", "blue", "magenta"};
+   col["l"] = "brown";
+   col["g"] := color[[Mod[colI++, Length@color]+1]];
+   col["c"|"j"] = "gray";
+   num[s_Symbol, j_Integer] := StringDrop[SymbolName@s, j];
+   index[Plus[j_Integer, s_Symbol]] := index@j <>"+"<>index@s;
+   index[j_Integer] := ToString@j;
    index[s_Symbol] := cache@s;
    cache[s_Symbol] := cache@s =
-   Module[{color={"red", "green", "blue", "magenta"}},
+   Module[{type, name, res, c},
       type = StringCases[SymbolName@s, LetterCharacter];
-      Switch[type,
-         {"l", _},
-            "{\\color{brown}l_{",
-         {"g", _},
-            "{\\color{"<>color[[Mod[i++, Length@color]+1]]<>"}g_{",
-         {"c", _},
-            "{\\color{gray}c_{",
-         {"j"},
-            "{\\color{gray}i_{"] <> StringDrop[SymbolName@s,
-               Length@type]<>"}}"];];
+      name = type[[1]];
+      c = col@name;
+      res = "{\\color{" <> c <> "}" <> name <> "_{" <>
+         num[s, Length@type] <> "}}";
+      abbr = "\\" <>name <> c <>
+         IntegerName@ToExpression@num[s, Length@type];
+      Unprotect@$Indices;
+      AppendTo[$Indices, {abbr, res}];
+      Protect@$Indices;
+      abbr];];
 index // secure;
 
 gCoupling[all : SARAH`Cp[fields__][mod_]] :=
