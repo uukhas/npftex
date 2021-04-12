@@ -233,8 +233,10 @@ Append[
    num];
 numberLines // secure;
 
+ComposedChar[sym_, bot_, Null] :=
+   ComposedChar[sym, bot];
 ComposedChar[sym_, bot_, top_: "", above_: ""] :=
-   sym<>"_{"<>bot<>"}"<>If[#!="", "^{"<>#<>"}", #]&@top;
+   sym<>"_{"<>bot<>"}"<>If[# =!= "", "^{"<>#<>"}", #]&@top;
 ComposedChar // secure;
 
 texify[Graphics, num:_Integer] :=
@@ -350,7 +352,7 @@ Module[{v},
    rCoupl // secure;];
 
 divideString[str_String] :=
-Module[{count = 0, level = 0, depth = 0, bracket = {"\\Big", "\\big"}},
+Module[{count = 0, level = 0, depth = 0, bracket = {"\\Big", "\\big"}, nl},
    nl[sym:"+"|"-"] :=
       If[level == 0 && count > $stringLength, count = 0; "\\\\\n&" <> sym, sym];
    nl[sym:"("] := If[depth <= Length@bracket, bracket[[depth]], ""]<>sym;
