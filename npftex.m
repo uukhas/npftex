@@ -93,13 +93,15 @@ Module[{res},
    res];
 privateGet // secure;
 
-initialize[fafile:_String, npffile:_String:""] :=
+initialize[fafile:_String, npffile:_String:"", model:_String:Default] :=
 Module[{npfs, pos},
    If[FileExistsQ@fafile,
       Unprotect[$Diagrams, $Model, $Particles];
       $Diagrams = List @@ privateGet[fafile][[1,All,1,1]];
       $ContextPath = DeleteCases[$ContextPath, "npftex`"];
-      $Model = FileNameSplit[fafile][[-4]];
+      If[model === Default,
+         $Model = FileNameSplit[fafile][[-4]];,
+         $Model = model;];
       $Name = StringDrop[FileNameSplit[fafile][[-1]], -2];
       $Particles = #->#& /@ DeleteDuplicates@Cases[$Diagrams,
          PropagatorGraphics[_, name_String ,_] :> name, Infinity,
